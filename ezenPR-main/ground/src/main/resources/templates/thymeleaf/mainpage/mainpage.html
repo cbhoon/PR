@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>main page</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/webapp/css/main_page.css">
+    <script  src="/webapp/js/unlim_scroll.js"></script>
+    <script src="https://kit.fontawesome.com/b135ca32a7.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div id="container">
+        <header id="header">
+            
+            <div class="logo">            
+                <a id="logo">
+                    <img src="/webapp/img/ground.png" alt="로고" width="40" height="40">
+                    <h1>Ground</h1>
+                </a>
+            </div>
+           
+            <form class="search-bar">
+                <input type="text" placeholder="검색어 입력" class="sch-bar">
+                <button type="button" class="btn1">검색</button>
+            </form>
+            
+        </header>  
+        <aside id="left-sidebar">
+            <table th:object="${memberDTO}">
+              <tr>
+                <td colspan="2"><img th:src="${memberDTO.img_path}" alt="" width="100px" style="border-radius: 50%;"></td>
+              </tr>
+              <tr>
+                <td colspan="2" th:text="${memberDTO.nickname}">닉네임</td>
+              </tr>
+              <tr>
+                <td colspan="2" th:text="${memberDTO.text}" >상태 메시지</td>
+              </tr>
+              <tr>
+                <td><a href="index.html">팔로우</a></td>
+                <td><a href="index.html">팔로잉</a></td>
+              </tr>
+              <tr>
+                <td><a href="index.html" th:text="${follownum}">123,456</a></td>
+                <td><a href="index.html" th:text="${followingnum}">123,456</a></td>
+              </tr>
+              <tr id="side-menu">
+                <td colspan="2"><a href="/board/list"><img class="ic-search" th:src="@{/img/ic-search.svg}">My home</a></td>
+              </tr>
+              
+              <tr id="side-menu">
+                <td colspan="2"><a href="/mainpage/mainpage.html" th:href="@{redirect:/mainpage/mainpage}"><img class="ic-search" th:src="@{/img/ic-search.svg}" >Main</a></td>
+              </tr>
+              <tr id="side-menu">
+                <td colspan="2"><a href="index.html"><img class="ic-search" th:src="@{/img/ic-search.svg}" >챗봇</a></td>
+              </tr>
+              <tr id="side-menu">
+                <td colspan="2"> <!-- log_id를 보내줘서 get_memberOne 사용가능 -->
+                	<a th:href="@{/mainpage/seclogin(log_id=${log_id})}">
+                		<img class="ic-search" th:src="@{/img/ic-search.svg}" >개인정보수정
+                	</a>
+                </td>
+              </tr>
+            </table>
+          </aside>
+        
+
+        <section id="contents">
+    	<div class="article-wrapper" th:object= "${memberDTO}" th:each="post : ${posts}">
+        <article data-post-id="${post.post_id}">
+            <div class="table-cell name-cell">
+                <img th:src="${post.member.img_path}" alt="프로필 이미지">
+                <span th:text="${post.member.nickname}"></span>
+                <button onclick="toggleMenu('menu1')" class="menu-button">&#x2630;</button>
+                <div id="menu1" class="menu-content">
+                <!-- 햄버거 버튼 클릭 시 나타날 메뉴 내용 -->
+                    <a href="#">신고하기</a>
+                    <a href="#">노출거절</a>
+                    <a href="#" onclick="copyUrl()">URL복사</a>
+                </div>
+            </div>
+            <div class="table-cell image-cell">
+                <img th:src="${post.img_path}" alt="포스트 이미지">
+            </div>
+            <div class="table-cell title-cell">
+                <div class="like-button-container" style="flex: 1;">
+				    <button class="like-button">
+					    <i class="fa-solid fa-heart"></i>
+					    <span></span>
+					   
+					</button>
+				</div>
+                <div class="title-container" style="flex: 4;">
+                    <h3 th:text="${post.title}"></h3>
+                </div>
+            </div>
+            <div class="table-cell content-cell">
+                <p th:text="${post.cntent}"></p>
+            </div>
+        </article>
+    </div>
+</section>
+        
+        
+    </div>
+
+    <script>
+        // 햄버거 버튼
+        function toggleMenu(menuId) {
+            var menu = document.getElementById(menuId);
+            menu.classList.toggle('show');
+        }
+        
+       
+     
+      /*   document.addEventListener("DOMContentLoaded", function () {
+            var articles = document.querySelectorAll('.article-wrapper article');
+
+            articles.forEach(function (article) {
+                var post_id = article.getAttribute('data-post-id');
+                var likeCountUrl = '/mainpage/likecount?post_id=' + post_id;
+
+                fetch(likeCountUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        var updatedCount = data;
+
+                        var likeCount_id = 'likeCount' + post_id;
+                        var likeCountElement = article.querySelector('.like-button-container span#' + likeCount_id);
+
+                        if (likeCountElement) {
+                            likeCountElement.innerText = updatedCount;
+                        } else {
+                            console.error('likeCount 엘리먼트를 찾을 수 없습니다.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('좋아요 수를 가져오는 중에 오류 발생:', error);
+                    });
+            });
+        }); */
+
+        
+        
+     /* // 좋아요 버튼 누르면 현재 숫자에서 +1, 그리고 id값 나눠야 게시글 마다 좋아요 카운트가 올라감
+        function likePost(likeCount_id, button) {
+            var currentCount = parseInt(document.getElementById(likeCount_id).innerText);
+
+            // 데이터 속성에서 값을 읽어옴
+            var post_id = button.getAttribute('data-post-id');
+            var user_id = button.getAttribute('data-user-id');
+
+            if (post_id && user_id) {
+                var likeCountUrl = '/mainpage/likecount?post_id=' + post_id;
+
+                // 좋아요 수를 가져오기 위한 AJAX 호출
+                fetch(likeCountUrl)
+                .then(response => response.json())
+                .then(data => {
+                    // 성공 시: 좋아요 수 업데이트
+                    var updatedCount = currentCount;
+
+                    if (!isNaN(data)) {
+                        // 서버에서 받은 좋아요 수가 숫자인 경우에만 적용
+                        updatedCount = data;
+                    }
+
+                    document.getElementById(likeCount_id).innerText = updatedCount;
+                })
+                .catch(error => {
+                    console.error('좋아요 수를 가져오는 중에 오류 발생:', error);
+                });
+
+                // 좋아요를 처리하기 위한 AJAX 호출
+                var likeUrl = '/mainpage/like?post_id=' + post_id + '&user_id=' + user_id;
+                fetch(likeUrl, {
+                    method: 'POST',
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // 성공 시: 좋아요 수 업데이트
+                    var updatedCount = currentCount;
+
+                    if (!isNaN(data)) {
+                        // 서버에서 받은 좋아요 수가 숫자인 경우에만 적용
+                        updatedCount = data;
+                    }
+
+                    document.getElementById(likeCount_id).innerText = updatedCount;
+                })
+                .catch(error => {
+                    console.error('좋아요 처리 중에 오류 발생:', error);
+                });
+            } else {
+                console.error('post_id 또는 user_id가 null 또는 undefined입니다.');
+            }
+        } */
+
+        //현재 url 변수로 가져오기
+        let nowUrl = window.location.href;
+
+        function copyUrl(){
+            navigator.clipboard.writeText(nowUrl).then(res=>{
+            alert("주소가 복사되었습니다!");
+            })
+        }
+
+      </script>
+</body>
+
+</html>
